@@ -9,6 +9,7 @@ packages = [{include = "github_database"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.31.0"
+psycopg2 = "^2.9.6"
 
 
 [build-system]
