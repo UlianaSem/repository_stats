@@ -23,7 +23,19 @@ class PostgresDB:
         self.cur = self.conn.cursor()
         self.table_name = table_name
 
+        self._create_users_table()
         self._create_table()
+
+    def _create_users_table(self):
+        """
+        Создает таблицу users в БД
+        """
+        with self.conn:
+            self.cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS users (
+            user_id SERIAL PRIMARY KEY,
+            user_name VARCHAR(255)
+            """)
 
     def _create_table(self):
         """
@@ -33,23 +45,42 @@ class PostgresDB:
             self.cur.execute(f"""
             CREATE TABLE IF NOT EXISTS {self.table_name} (
             id SERIAL PRIMARY KEY,
+            user_id INT,
             name VARCHAR(255),
             stars INT,
             forks INT,
-            language VARCHAR(255)
+            language VARCHAR(255),
+            
+            CONSTRAINT fk_{self.table_name}_users FOREIGN KEY(user_id) REFERENCES users(user_id)
             );
             """)
 
-    def add_data(self, data):
+    def add_user(self, user_name):
+        """
+        Добавляет пользователя в таблицу
+        :param user_name: имя пользователя
+        :return: id пользователя
+        """
+        with self.conn:
+            self.cur.execute(
+                f"INSERT INTO users (user_name) VALUES (%s)"
+                f"RETURNING user_id", user_name)
+
+            user_id = self.cur.fetchone()[0]
+
+            return user_id
+
+    def add_data(self, data, user_id):
         """
         Добавляет данные в таблицу
+        :param user_id: id пользователя
         :param data: данные для добавления
         """
         with self.conn:
             for data_ in data:
                 self.cur.execute(
-                    f"INSERT INTO {self.table_name} (name, stars, forks, language) VALUES (%s, %s, %s, %s)",
-                    (data_["name"], data_["stars"], data_["forks"], data_["language"]))
+                    f"INSERT INTO {self.table_name} (user_id, name, stars, forks, language) VALUES (%s, %s, %s, %s)",
+                    (user_id, data_["name"], data_["stars"], data_["forks"], data_["language"]))
 
     def export_data_to_json(self):
         """
