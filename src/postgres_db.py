@@ -90,8 +90,8 @@ class PostgresDB:
             self.cur.execute(f'SELECT * FROM {self.table_name}')
             data = self.cur.fetchall()
 
-            data_dict = [{"id": data_[0], "name": data_[1], "stars": data_[2], "forks": data_[3], "language": data_[4]}
-                         for data_ in data]
+            data_dict = [{"id": data_[0], "user_id": data_[1], "name": data_[2], "stars": data_[3], "forks": data_[4],
+                          "language": data_[5]} for data_ in data]
 
             with open(f"{self.table_name}.json", "w") as f:
                 json.dump(data_dict, f, indent=4)
@@ -109,7 +109,7 @@ class PostgresDB:
             self.cur.execute(f'SELECT * FROM {self.table_name} SORT BY {sort} LIMIT {count}')
             data = self.cur.fetchall()
 
-            data_dict = [{"id": data_[0], "name": data_[1], "stars": data_[2], "forks": data_[3], "language": data_[4]}
-                         for data_ in data]
+            data_dict = [{"id": data_[0], "user_id": data_[1], "name": data_[2], "stars": data_[3], "forks": data_[4],
+                          "language": data_[5]} for data_ in data]
 
             return data_dict
