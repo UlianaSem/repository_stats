@@ -34,7 +34,7 @@ class PostgresDB:
             self.cur.execute(f"""
             CREATE TABLE IF NOT EXISTS users (
             user_id SERIAL PRIMARY KEY,
-            user_name VARCHAR(255)
+            user_name VARCHAR(255));
             """)
 
     def _create_table(self):
@@ -62,9 +62,7 @@ class PostgresDB:
         :return: id пользователя
         """
         with self.conn:
-            self.cur.execute(
-                f"INSERT INTO users (user_name) VALUES (%s)"
-                f"RETURNING user_id", user_name)
+            self.cur.execute(f"INSERT INTO users (user_name) VALUES (%s) RETURNING user_id", [user_name])
 
             user_id = self.cur.fetchone()[0]
 
@@ -79,7 +77,8 @@ class PostgresDB:
         with self.conn:
             for data_ in data:
                 self.cur.execute(
-                    f"INSERT INTO {self.table_name} (user_id, name, stars, forks, language) VALUES (%s, %s, %s, %s)",
+                    f"INSERT INTO {self.table_name} (user_id, name, stars, forks, language) VALUES (%s, %s, %s,"
+                    f" %s, %s)",
                     (user_id, data_["name"], data_["stars"], data_["forks"], data_["language"]))
 
     def export_data_to_json(self):
