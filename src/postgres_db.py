@@ -44,7 +44,6 @@ class PostgresDB:
         """
         Добавляет данные в таблицу
         :param data: данные для добавления
-        :return:
         """
         with self.conn:
             for data_ in data:
@@ -59,7 +58,10 @@ class PostgresDB:
         with self.conn:
             self.cur.execute(f'SELECT * FROM {self.table_name}')
             data = self.cur.fetchall()
-            data_dict = [{"id": d[0], "name": d[1], "stars": d[2], "forks": d[3], "language": d[4]} for d in data]
+
+            data_dict = [{"id": data_[0], "name": data_[1], "stars": data_[2], "forks": data_[3], "language": data_[4]}
+                         for data_ in data]
+
             with open(f"{self.table_name}.json", "w") as f:
                 json.dump(data_dict, f, indent=4)
 
@@ -70,8 +72,13 @@ class PostgresDB:
         :param sort: колонка для сортировки
         :return: список словарей с данными
         """
+        sort = sort.strip()
+
         with self.conn:
             self.cur.execute(f'SELECT * FROM {self.table_name} SORT BY {sort} LIMIT {count}')
             data = self.cur.fetchall()
-            data_dict = [{"id": d[0], "name": d[1], "stars": d[2], "forks": d[3], "language": d[4]} for d in data]
+
+            data_dict = [{"id": data_[0], "name": data_[1], "stars": data_[2], "forks": data_[3], "language": data_[4]}
+                         for data_ in data]
+
             return data_dict
